@@ -1,4 +1,29 @@
 ---
-- include: rabbitmq.yml
-  tags:
-    - rabbitmq
+- name: include rabbitmq installation tasks
+  include_tasks: install-{{ ansible_os_family }}.yml
+
+- name: include rabbitmq plugins tasks
+  include_tasks: plugins.yml
+
+- name: include rabbitmq configure tasks
+  include_tasks: configure.yml
+
+- name: include rabbitmq configure cluster tasks
+  include_tasks: configure-cluster.yml
+  when: rabbitmq_cluster|bool
+
+- name: assure rabbitmq-server is started
+  service:
+    name: rabbitmq-server
+    enabled: true
+    state: started
+
+- name: include rabbitmq vhosts tasks
+  include_tasks: vhosts.yml
+
+- name: include rabbitmq users tasks
+  include_tasks: users.yml
+
+- name: include rabbitmq cluster tasks
+  include_tasks: cluster.yml
+  when: rabbitmq_cluster|bool and rabbitmq_nodename != rabbitmq_cluster_master
